@@ -1,0 +1,30 @@
+# Dépendances et builds
+node_modules/
+dist/
+dev-dist/
+*.tsbuildinfo
+
+# Secrets — seul .env.example est commité
+.env
+.env.*
+!.env.example
+supabase/functions/.env
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Données réelles : ne JAMAIS commiter d'export de la scolarité
+*.csv
+!scripts/exemple-etudiants.csv
+
+# Éditeurs et système
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Journaux
+*.log

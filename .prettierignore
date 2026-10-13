@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+**/dist
+**/dev-dist
+supabase/.temp
+supabase/migrations
+supabase/tests
+supabase/seed.sql
+supabase/templates
+docs/cahier-des-charges

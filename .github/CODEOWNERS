@@ -1,0 +1,10 @@
+# Chaque PR touchant ces chemins demande l'avis du référent.
+# ⚠ Remplacer les pseudos ci-dessous par les vrais pseudos GitHub de l'équipe.
+# La dernière règle qui correspond l'emporte : les règles générales d'abord.
+
+/apps/web/                         @github-dev-web
+/apps/web/src/features/scan/       @github-dev-scan
+/supabase/                         @github-stephane
+/packages/shared/                  @github-stephane
+/scripts/                          @github-stephane
+/.github/                          @github-stephane

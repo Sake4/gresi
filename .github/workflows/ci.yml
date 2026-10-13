@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Web (lint, types, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+        env:
+          # Valeurs factices : le build n'a pas besoin d'une vraie base
+          VITE_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_SUPABASE_PUBLISHABLE_KEY: cle-factice-pour-le-build-ci
+          VITE_ENV: dev
+
+  edge-functions:
+    name: Edge Functions (deno check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check supabase/functions/*/index.ts
+      - run: deno lint supabase/functions
+
+  base-de-donnees:
+    name: Base de données (migrations + tests pgTAP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase db start # applique toutes les migrations et seed.sql
+      - run: supabase test db # exécute supabase/tests/*.test.sql
+      - name: Types à jour
+        # TODO semaine 0 : passer à false après la première exécution de `pnpm db:types`
+        # (le fichier initial a été généré hors CLI Supabase).
+        continue-on-error: true
+        run: |
+          supabase gen types typescript --local > /tmp/types.ts
+          npx --yes prettier@3 --stdin-filepath x.ts < /tmp/types.ts > /tmp/types-format.ts
+          npx --yes prettier@3 --stdin-filepath x.ts < packages/shared/src/types/database.types.ts > /tmp/types-commit.ts
+          diff -q /tmp/types-format.ts /tmp/types-commit.ts || {
+            echo "::error::database.types.ts n'est pas à jour : lancer pnpm db:types et commiter le fichier."
+            exit 1
+          }

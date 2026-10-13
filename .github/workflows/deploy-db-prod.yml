@@ -1,0 +1,27 @@
+name: Migrations production
+
+# Déclenchement MANUEL uniquement (onglet Actions → « Migrations production » → Run workflow).
+# L'environnement GitHub « production » exige l'approbation d'un admin supérieur.
+on: workflow_dispatch
+
+jobs:
+  push:
+    name: supabase db push → gresi-prod
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: production
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PROD }}
+      - name: Aperçu des migrations à appliquer
+        run: supabase migration list
+      - run: supabase db push
+      - name: Déploiement des Edge Functions
+        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_ID_PROD }}
