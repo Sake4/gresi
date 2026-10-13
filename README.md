@@ -132,8 +132,9 @@ autre domaine. Il passe par son `index.ts` (ESLint le vérifie).
 ## Vérifier les Edge Functions
 
 ```bash
-deno check supabase/functions/*/index.ts
-deno lint supabase/functions
+cd supabase/functions      # toujours depuis ce dossier (sinon Deno lit le package.json de la racine)
+deno check */index.ts
+deno lint
 ```
 
 ## Sécurité — à retenir
