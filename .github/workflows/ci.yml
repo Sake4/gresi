@@ -39,8 +39,11 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno check supabase/functions/*/index.ts
-      - run: deno lint supabase/functions
+      # Lancé depuis le dossier des fonctions : Deno y lit deno.json et ignore le package.json de la racine
+      - run: deno check */index.ts
+        working-directory: supabase/functions
+      - run: deno lint
+        working-directory: supabase/functions
 
   base-de-donnees:
     name: Base de données (migrations + tests pgTAP)
